@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-4.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+       default-autowire="byName" default-lazy-init="false">
+
+    <context:property-placeholder location="classpath:redis.properties" />
+
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="testWhileIdle" value="true"/>
+        <property name="minEvictableIdleTimeMillis" value="60000"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="numTestsPerEvictionRun" value="-1"/>
+        <property name="maxTotal" value="8000"/>
+        <property name="maxIdle" value="5000"/>
+        <property name="minIdle" value="5"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+	</bean>
+
+    <!-- sentinel config -->
+    <bean id="jedisSentinelPool" class="redis.clients.jedis.JedisSentinelPool" destroy-method="destroy">
+        <constructor-arg name="masterName" value="mymaster"/>
+        <constructor-arg name="poolConfig" ref="poolConfig"/>
+        <constructor-arg name="sentinels">
+            <set value-type="java.lang.String">
+                <value>${redis.host}</value>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <bean id="remoteCache" class="com.mjj.util.RemoteCache">
+        <property name="jedisSentinelPool" ref="jedisSentinelPool"/>
+    </bean>
+
+</beans>
