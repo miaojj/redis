@@ -28,7 +28,7 @@ public class UserTest {
         User u1 = new User();
         User u2 = new User();
         u1.setId("1111");
-        u1.setName("xiao");
+        u1.setName("xiao阿");
         u2.setId("2222");
         u2.setName("da");
         List<User> list = new ArrayList<>();
